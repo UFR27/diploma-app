@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
 
 import com.itextpdf.text.BaseColor;
@@ -21,12 +23,18 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import fr.pantheonsorbonne.miage.diploma.NameSnippet;
+import fr.pantheonsorbonne.miage.diploma.DiplomaSnippet;
+import fr.pantheonsorbonne.miage.diploma.DateSnippet;
+
 public class DiplomaGenerator {
 
-	private String name;
+	private Collection<DiplomaSnippet> snippets = new HashSet<>();
 
 	public DiplomaGenerator(String name) {
-		this.name = name;
+
+		this.snippets.add(new DateSnippet());
+		this.snippets.add(new NameSnippet(name));
 	}
 
 	public InputStream generateStream() {
@@ -49,29 +57,13 @@ public class DiplomaGenerator {
 
 			Path image = new File("src/main/resources/diploma.png").toPath();
 			Rectangle rect = new Rectangle(800f, 600f);
-
 			document.setPageSize(rect);
-
 			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(outputFile));
 			document.open();
-
-			{
-				ColumnText ct = new ColumnText(writer.getDirectContent());
-				ct.setSimpleColumn(200, 50, 550, 350);
-				Font font = FontFactory.getFont(FontFactory.COURIER, 30, BaseColor.BLACK);
-				Chunk chunk = new Chunk(name, font);
-				ct.addElement(chunk);
-				ct.go();
-			}
-
-			{
-				ColumnText ct = new ColumnText(writer.getDirectContent());
-				ct.setSimpleColumn(200, 140, 350, 0);
-				Font font = FontFactory.getFont(FontFactory.COURIER, 15, BaseColor.BLACK);
-				String timeStamp = new SimpleDateFormat("dd MMM yyyy", Locale.FRANCE).format(new Date());
-				Chunk chunk = new Chunk(timeStamp, font);
-				ct.addElement(chunk);
-				ct.go();
+			
+			
+			for (DiplomaSnippet snippet : this.snippets) {
+				snippet.write(writer);
 			}
 
 			document.add(Image.getInstance(image.toAbsolutePath().toString()));
@@ -82,4 +74,5 @@ public class DiplomaGenerator {
 			document.close();
 		}
 	}
+
 }

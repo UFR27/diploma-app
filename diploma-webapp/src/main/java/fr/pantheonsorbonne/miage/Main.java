@@ -73,8 +73,8 @@ public class Main {
 				for (int i = 0; i < students.size(); i++) {
 					if (i == id) {
 						response.setContentType("application/pdf");
-						DiplomaGenerator generator = new DiplomaGenerator(
-								students.get(i).getTitle() + " " + students.get(i).getName());
+						DiplomaGenerator generator = new DiplomaGeneratorEncrypted(
+								students.get(i).getTitle() + " " + students.get(i).getName(),"abc");
 						try (InputStream is = generator.generateStream()) {
 							try (NIOOutputStream os = response.createOutputStream()) {
 								ByteStreams.copy(is, os);
