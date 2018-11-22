@@ -1,9 +1,14 @@
 package fr.pantheonsorbonne.miage;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
@@ -24,7 +29,21 @@ public class DiplomaGenerator {
 		this.name = name;
 	}
 
-	void generateFile(String outputFile) {
+	public InputStream generateStream() {
+		Path tempFile;
+		try {
+			tempFile = java.nio.file.Files.createTempFile("sdfsdfggs", "sdfsdfgsdfg");
+			this.generateFile(tempFile.toString());
+			return new FileInputStream(tempFile.toFile());
+
+		} catch (IOException e) {
+
+			throw new RuntimeException("failed to generate the file to stream to", e);
+		}
+
+	}
+
+	public void generateFile(String outputFile) {
 		Document document = new Document();
 		try {
 
@@ -38,7 +57,7 @@ public class DiplomaGenerator {
 
 			{
 				ColumnText ct = new ColumnText(writer.getDirectContent());
-				ct.setSimpleColumn(200, 50, 500, 350);
+				ct.setSimpleColumn(200, 50, 550, 350);
 				Font font = FontFactory.getFont(FontFactory.COURIER, 30, BaseColor.BLACK);
 				Chunk chunk = new Chunk(name, font);
 				ct.addElement(chunk);
@@ -47,9 +66,10 @@ public class DiplomaGenerator {
 
 			{
 				ColumnText ct = new ColumnText(writer.getDirectContent());
-				ct.setSimpleColumn(200, 140, 300, 0);
+				ct.setSimpleColumn(200, 140, 350, 0);
 				Font font = FontFactory.getFont(FontFactory.COURIER, 15, BaseColor.BLACK);
-				Chunk chunk = new Chunk("date", font);
+				String timeStamp = new SimpleDateFormat("dd MMM yyyy", Locale.FRANCE).format(new Date());
+				Chunk chunk = new Chunk(timeStamp, font);
 				ct.addElement(chunk);
 				ct.go();
 			}

@@ -21,7 +21,7 @@ public class DiplomaGeneratorEncrypted extends DiplomaGenerator {
 	}
 
 	@Override
-	void generateFile(String outputFile) {
+	public void generateFile(String outputFile) {
 
 		File tempOutputFile = new File("temp_" + outputFile);
 		super.generateFile(tempOutputFile.getAbsolutePath());
