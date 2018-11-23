@@ -42,7 +42,7 @@ public class Main {
 	public static void main(String[] args) throws IOException, URISyntaxException {
 
 		HttpServer server = HttpServer.createSimpleServer();
-		addRootPath(server,"");
+		addRootPath(server,"/home");
 		addDiplomaPath(server,"/diploma/*");
 
 		try
@@ -65,7 +65,7 @@ public class Main {
 			if (i == studentId) {
 				Student student = students.get(i);
 				response.setContentType("application/pdf");
-				DiplomaGenerator generator = new MiageDiplomaGenerator(student.toString());
+				DiplomaGenerator generator = new MiageDiplomaGenerator(student);
 				try (InputStream is = generator.getContent()) {
 					try (NIOOutputStream os = response.createOutputStream()) {
 						ByteStreams.copy(is, os);

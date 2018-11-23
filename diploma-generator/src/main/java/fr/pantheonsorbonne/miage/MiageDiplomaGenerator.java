@@ -23,20 +23,27 @@ import fr.pantheonsorbonne.miage.diploma.DiplomaSnippet;
 
 public class MiageDiplomaGenerator extends AbstractDiplomaGenerator {
 
-	private String name;
+	private Student student;
+	private Date date = null;
 
 	/**
 	 * Create the generator using a student name
 	 * 
 	 * @param name
 	 */
-	public MiageDiplomaGenerator(String name) {
-		this.name = name;
+	public MiageDiplomaGenerator(Student student) {
+		this(student, new Date());
+	}
+
+	public MiageDiplomaGenerator(Student student, Date date) {
+		this.student = student;
+		this.date = date;
 	}
 
 	@Override
 	protected Collection<DiplomaSnippet> getDiplomaSnippets() {
-		return Arrays.asList(new DateSnippet(), new NameSnippet(name));
+		String studentName = this.student.getName() + " " + this.student.getTitle();
+		return Arrays.asList(new DateSnippet(this.date), new NameSnippet(studentName));
 	}
 
 }

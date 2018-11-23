@@ -7,19 +7,18 @@ import java.util.Collection;
 
 import fr.pantheonsorbonne.miage.diploma.DiplomaSnippet;
 
-public class DiplomaFileAdapter extends FileGenerator<DiplomaGenerator> {
+public class DiplomaFileAdapter extends FileGenerator<AbstractDiplomaGenerator> {
 
-	public DiplomaFileAdapter(DiplomaGenerator t) {
+	public DiplomaFileAdapter(AbstractDiplomaGenerator t) {
 		super(t);
 
 	}
 
-	private AbstractDiplomaGenerator diplomaGenerator;
 
 	@Override
 	public void generateFile(String outputFile) {
 		try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-			this.diplomaGenerator.writeToStream(fos);
+			this.generator.writeToStream(fos);
 
 		} catch (IOException e) {
 			e.printStackTrace();
