@@ -31,7 +31,8 @@ public class EncryptedDiplomaGeneratorDecorator extends DiplomaGeneratorDecorato
 				PdfReader pdfReader = new PdfReader(is);
 				PdfStamper pdfStamper = new PdfStamper(pdfReader, os);
 
-				pdfStamper.setEncryption(this.password.getBytes(), "".getBytes(), 0, PdfWriter.ENCRYPTION_AES_256);
+				pdfStamper.setEncryption(null, this.password.getBytes(), 0,
+						PdfWriter.ENCRYPTION_AES_256 );
 				pdfStamper.close();
 				return new ByteArrayInputStream(os.toByteArray());
 			}
