@@ -42,6 +42,57 @@ public class Main {
 	public static void main(String[] args) throws IOException, URISyntaxException {
 
 		HttpServer server = HttpServer.createSimpleServer();
+		addRootPath(server,"");
+		addDiplomaPath(server,"/diploma/*");
+
+		try
+
+		{
+			server.start();
+			System.out.println("Press any key to stop the server...");
+			System.in.read();
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	protected static void handleResponse(Response response, int studentId) throws IOException {
+		// create an arrayList of the students, because iterables are too hard
+		ArrayList<Student> students = new ArrayList<>();
+		Iterables.addAll(students, StudentRepository.withDB("src/main/resources/students.db"));
+
+		for (int i = 0; i < students.size(); i++) {
+			if (i == studentId) {
+				Student student = students.get(i);
+				response.setContentType("application/pdf");
+				DiplomaGenerator generator = new MiageDiplomaGenerator(student.toString());
+				try (InputStream is = generator.getContent()) {
+					try (NIOOutputStream os = response.createOutputStream()) {
+						ByteStreams.copy(is, os);
+					}
+
+				}
+				return;
+			}
+		}
+	}
+
+	protected static void addDiplomaPath(HttpServer server,String path) {
+		server.getServerConfiguration().addHttpHandler(new HttpHandler() {
+			public void service(Request request, Response response) throws Exception {
+				// get the id of the student
+				int id = Integer.parseInt(request.getPathInfo().substring(1));
+
+				handleResponse(response, id);
+				response.setContentType("text/html; charset=utf-8");
+				response.setStatus(404);
+				response.getWriter().write("Erreur 404 : Le diplome n'existe pas pour cet utilisateur");
+
+			}
+		}, path);
+	}
+
+	protected static void addRootPath(HttpServer server,String path) {
 		server.getServerConfiguration().addHttpHandler(new HttpHandler() {
 			public void service(Request request, Response response) throws Exception {
 
@@ -59,47 +110,6 @@ public class Main {
 				response.setContentLength(sb.length());
 				response.getWriter().write(sb.toString());
 			}
-		}, "/home");
-
-		server.getServerConfiguration().addHttpHandler(new HttpHandler() {
-			public void service(Request request, Response response) throws Exception {
-				// get the id of the student
-				int id = Integer.parseInt(request.getPathInfo().substring(1));
-
-				// create an arrayList of the students, because iterables are too hard
-				ArrayList<Student> students = new ArrayList<>();
-				Iterables.addAll(students, StudentRepository.withDB("src/main/resources/students.db"));
-
-				for (int i = 0; i < students.size(); i++) {
-					if (i == id) {
-						response.setContentType("application/pdf");
-						DiplomaGenerator generator = new DiplomaGeneratorEncrypted(
-								students.get(i).getTitle() + " " + students.get(i).getName(),"abc");
-						try (InputStream is = generator.generateStream()) {
-							try (NIOOutputStream os = response.createOutputStream()) {
-								ByteStreams.copy(is, os);
-							}
-
-						}
-						return;
-					}
-				}
-				response.setContentType("text/html; charset=utf-8");
-				response.setStatus(404);
-				response.getWriter().write("Erreur 404 : Le diplome n'existe pas pour cet utilisateur");
-				
-
-			}
-		}, "/diploma/*");
-
-		try
-
-		{
-			server.start();
-			System.out.println("Press any key to stop the server...");
-			System.in.read();
-		} catch (Exception e) {
-			System.err.println(e);
-		}
+		}, path);
 	}
 }
